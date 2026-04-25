@@ -80,4 +80,56 @@ T1|x|task1|-
 
     expect(ctx.ui.setWidget).toHaveBeenCalledWith('spec_tracker', expect.any(Function));
   });
+
+  it('updates widget on write tool_call', async () => {
+    extension(pi);
+    expect(handlers.tool_call).toBeDefined();
+
+    const event = {
+      toolName: 'write',
+      input: {
+        path: 'SPEC.md',
+        content: '## §G\nwrite goal\n\n## §T\nid|status|task|cites\nT1|x|write task|-\n',
+      },
+    };
+
+    await handlers.tool_call(event, ctx);
+    expect(ctx.ui.setWidget).toHaveBeenCalledWith('spec_tracker', expect.any(Function));
+  });
+
+  it('updates widget on read tool_result', async () => {
+    extension(pi);
+    expect(handlers.tool_result).toBeDefined();
+
+    const event = {
+      toolName: 'read',
+      input: { path: 'SPEC.md' },
+      content: [{ type: 'text', text: '## §G\nread goal\n\n## §T\nid|status|task|cites\nT1|x|read task|-\n' }],
+      isError: false,
+    };
+
+    await handlers.tool_result(event, ctx);
+    expect(ctx.ui.setWidget).toHaveBeenCalledWith('spec_tracker', expect.any(Function));
+  });
+
+  it('updates widget on edit tool_result', async () => {
+    const fs = await import('node:fs');
+    (fs.readFileSync as ReturnType<typeof vi.fn>).mockReturnValue(
+      '## §G\nedit goal\n\n## §T\nid|status|task|cites\nT1|x|edit task|-\n',
+    );
+
+    extension(pi);
+    expect(handlers.tool_result).toBeDefined();
+
+    const event = {
+      toolName: 'edit',
+      input: { path: 'SPEC.md' },
+      content: [],
+      isError: false,
+    };
+
+    await handlers.tool_result(event, ctx);
+    expect(fs.readFileSync).toHaveBeenCalledWith('/project/SPEC.md', 'utf-8');
+    expect(ctx.ui.setWidget).toHaveBeenCalledWith('spec_tracker', expect.any(Function));
+  });
 });

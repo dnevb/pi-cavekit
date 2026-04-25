@@ -78,13 +78,13 @@ export default function (pi: ExtensionAPI) {
   pi.on('tool_result', async (event: any, ctx: ExtensionContext) => {
     const inputPath = event.input?.path;
 
-    if (event.type === 'read' && isSpecPath(inputPath)) {
+    if (event.toolName === 'read' && isSpecPath(inputPath)) {
       const contentItem = event.content?.find((c: any) => c.type === 'text');
       if (contentItem?.type === 'text') scanFromText(contentItem.text, ctx);
       return;
     }
 
-    if (event.type === 'edit' && isSpecPath(inputPath)) {
+    if (event.toolName === 'edit' && isSpecPath(inputPath)) {
       const text = readSpecFile(ctx.cwd);
       if (text) scanFromText(text, ctx);
     }
@@ -92,7 +92,7 @@ export default function (pi: ExtensionAPI) {
 
   pi.on('tool_call', async (event: any, ctx: ExtensionContext) => {
     const inputPath = event.input?.path;
-    if (event.name === 'write' && isSpecPath(inputPath)) {
+    if (event.toolName === 'write' && isSpecPath(inputPath)) {
       const content = event.input?.content;
       if (content) scanFromText(content, ctx);
     }

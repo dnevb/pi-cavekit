@@ -23,6 +23,7 @@ V4: spec-tracker reconstructs state from `toolResult` details on session events
 V5: spec-tracker renders `§T` progress as `x/~/.` icons + counts + current task name
 V6: tests validate all skills have valid frontmatter + all file refs resolve
 V7: spec-tracker `parseSpec` recognizes `## §G/§V/§T/§B` with optional title suffix
+V8: spec-tracker extension tests verify widget update on read, write, and edit tool events
 
 ## §T
 id|status|task|cites
@@ -40,3 +41,4 @@ B2|2026-04-25|widget renders ✓→○ not x/~/. per §V.5|V5
 B3|2026-04-25|session_start reconstructs state but skips scan when branch empty, widget not loaded on pi open|V3
 B4|2026-04-25|incorrect format.md reference|V6
 B5|2026-04-25|parseSpec exact match `line === '## §G'`, misses titled headers like `## §G GOAL`|V7
+B6|2026-04-25|tool_call uses event.name, tool_result uses event.type instead of event.toolName, skipping all SPEC.md scans|V8
