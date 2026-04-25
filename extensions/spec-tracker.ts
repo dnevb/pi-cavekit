@@ -47,12 +47,12 @@ function renderWidgetText(state: SpecState, theme: Theme): string {
   const icons = data.icons
     .map((icon) => {
       switch (icon) {
-        case "✓":
-          return theme.fg("success", "✓");
-        case "→":
-          return theme.fg("warning", "→");
+        case "x":
+          return theme.fg("success", "x");
+        case "~":
+          return theme.fg("warning", "~");
         default:
-          return theme.fg("dim", "○");
+          return theme.fg("dim", ".");
       }
     })
     .join("");
@@ -126,8 +126,14 @@ export default function (pi: ExtensionAPI) {
     }
 
     if (isEditToolResult(event) && isSpecPath(inputPath)) {
-      // Same issue — edit result doesn't include full file content.
-      // We'll handle this via tool_call mutation or just rely on next read.
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      try {
+        const specPath = path.resolve(ctx.cwd, SPEC_PATH);
+        text = fs.readFileSync(specPath, "utf-8");
+      } catch {
+        // file missing or unreadable — ignore
+      }
     }
 
     if (text) {
@@ -145,13 +151,7 @@ export default function (pi: ExtensionAPI) {
         scanFromText(content, ctx);
       }
     }
-    if (isToolCallEventType("edit", event) && isSpecPath(callInputPath)) {
-      // edit doesn't have full content — we'll need to read after
-      // Schedule a read? No, let's just let the next explicit read handle it
-      // or we could store a flag to scan on next read result.
-      // For simplicity, we skip auto-scan on edit and let the user read or
-      // use the spec_tracker tool.
-    }
+
   });
 
   pi.registerTool({

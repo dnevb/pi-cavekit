@@ -95,9 +95,9 @@ describe("formatStatus", () => {
     expect(out).toContain("Goal: build auth service");
     expect(out).toContain("Tasks: 1/3 complete (1 in progress, 1 pending)");
     expect(out).toContain("Invariants: 2 | Bugs: 1");
-    expect(out).toContain("✓ [T1] scaffold repo");
-    expect(out).toContain("→ [T2] impl auth mw");
-    expect(out).toContain("○ [T3] add tests");
+    expect(out).toContain("x [T1] scaffold repo");
+    expect(out).toContain("~ [T2] impl auth mw");
+    expect(out).toContain(". [T3] add tests");
   });
 
   it("handles empty state", () => {
@@ -110,7 +110,7 @@ describe("formatWidgetData", () => {
   it("formats widget data for full spec", () => {
     const s = parseSpec(SAMPLE_SPEC);
     const d = formatWidgetData(s);
-    expect(d.icons).toEqual(["✓", "→", "○"]);
+    expect(d.icons).toEqual(["x", "~", "."]);
     expect(d.complete).toBe(1);
     expect(d.total).toBe(3);
     expect(d.currentName).toBe("impl auth mw");
@@ -161,7 +161,7 @@ describe("handleStatus", () => {
     const r = handleStatus(state);
     expect(r.error).toBeUndefined();
     expect(r.state.tasks).toHaveLength(1);
-    expect(r.text).toContain("✓ [T1] foo");
+    expect(r.text).toContain("x [T1] foo");
   });
 });
 

@@ -188,7 +188,7 @@ export function formatStatus(state: SpecState): string {
   lines.push(`Invariants: ${state.invariantCount} | Bugs: ${state.bugCount}`);
   lines.push("");
   for (const t of state.tasks) {
-    const icon = t.status === "complete" ? "✓" : t.status === "in_progress" ? "→" : "○";
+    const icon = t.status === "complete" ? "x" : t.status === "in_progress" ? "~" : ".";
     lines.push(`  ${icon} [${t.id}] ${t.name}`);
   }
   return lines.join("\n");
@@ -212,11 +212,11 @@ export function formatWidgetData(state: SpecState): WidgetData {
   const icons = state.tasks.map((t) => {
     switch (t.status) {
       case "complete":
-        return "✓";
+        return "x";
       case "in_progress":
-        return "→";
+        return "~";
       default:
-        return "○";
+        return ".";
     }
   });
 

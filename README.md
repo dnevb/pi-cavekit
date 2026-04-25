@@ -31,7 +31,7 @@ Or add to `.pi/settings.json` (project-level) or `~/.pi/agent/settings.json` (gl
 A persistent TUI widget that auto-scans `SPEC.md` and shows progress:
 
 ```
-Spec: ✓→○○ (1/4) V2 B1  impl auth middleware
+Spec: x~.. (1/4) V2 B1  impl auth middleware
 ```
 
 - **Auto-scan**: Updates when `SPEC.md` is read, written, or edited

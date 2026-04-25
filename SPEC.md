@@ -11,7 +11,7 @@ pi package bundling cavekit spec-driven-dev skills + spec-tracker TUI widget for
 - tests via vitest
 
 ## §I
-- package: `pi install git:github.com/dan/pi-cavekit`
+- package: `pi install git:github.com/dnevb/pi-cavekit`
 - skills: `/skill:spec`, `/skill:build`, `/skill:check`, `/skill:caveman`, `/skill:backprop`
 - extension tool: `spec_tracker({ action: "scan"|"status"|"clear" })`
 - widget: persistent TUI panel showing §T progress + §V/§B counts
@@ -34,3 +34,5 @@ T5|x|write package.json + README|T5,V1
 
 ## §B
 id|date|cause|fix
+B1|2026-04-25|edit tool_result skips SPEC.md scan, widget stale|V3
+B2|2026-04-25|widget renders ✓→○ not x/~/. per §V.5|V5
