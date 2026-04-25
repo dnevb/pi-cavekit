@@ -11,6 +11,8 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@mariozechner/pi-cod
 import { isToolCallEventType, isReadToolResult, isWriteToolResult, isEditToolResult } from "@mariozechner/pi-coding-agent";
 import { Text } from "@mariozechner/pi-tui";
 import { Type, type Static } from "typebox";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import {
   type SpecState,
   type BranchEntry,
@@ -98,7 +100,18 @@ export default function (pi: ExtensionAPI) {
   // Reconstruct state + widget on session events
   pi.on("session_start", async (_event: any, ctx: ExtensionContext) => {
     reconstructState(ctx);
-    updateWidget(ctx);
+    // If no prior state found, scan SPEC.md to populate widget on startup
+    if (state.tasks.length === 0 && state.invariantCount === 0) {
+      try {
+        const specPath = path.resolve(ctx.cwd, SPEC_PATH);
+        const text = fs.readFileSync(specPath, "utf-8");
+        scanFromText(text, ctx);
+      } catch {
+        // SPEC.md missing — leave widget hidden until first scan
+      }
+    } else {
+      updateWidget(ctx);
+    }
   });
   pi.on("session_tree", async (_event: any, ctx: ExtensionContext) => {
     reconstructState(ctx);
@@ -126,8 +139,6 @@ export default function (pi: ExtensionAPI) {
     }
 
     if (isEditToolResult(event) && isSpecPath(inputPath)) {
-      const fs = await import("node:fs");
-      const path = await import("node:path");
       try {
         const specPath = path.resolve(ctx.cwd, SPEC_PATH);
         text = fs.readFileSync(specPath, "utf-8");
@@ -167,8 +178,6 @@ export default function (pi: ExtensionAPI) {
       switch (params.action) {
         case "scan": {
           // Try to read SPEC.md
-          const fs = await import("node:fs");
-          const path = await import("node:path");
           const specPath = path.resolve(ctx.cwd, SPEC_PATH);
           let text = "";
           try {

@@ -19,7 +19,7 @@ pi package bundling cavekit spec-driven-dev skills + spec-tracker TUI widget for
 ## §V
 V1: skills dir layout matches pi convention (`skills/<name>/SKILL.md`)
 V2: each SKILL.md frontmatter has `name` + `description` fields
-V3: spec-tracker widget updates on every `read`/`write`/`edit` tool call targeting `SPEC.md`
+V3: spec-tracker widget updates on SPEC.md read/write/edit AND on session_start when branch has no prior state
 V4: spec-tracker reconstructs state from `toolResult` details on session events
 V5: spec-tracker renders `§T` progress as `x/~/.` icons + counts + current task name
 V6: tests validate all skills have valid frontmatter + all file refs resolve
@@ -36,3 +36,4 @@ T5|x|write package.json + README|T5,V1
 id|date|cause|fix
 B1|2026-04-25|edit tool_result skips SPEC.md scan, widget stale|V3
 B2|2026-04-25|widget renders ✓→○ not x/~/. per §V.5|V5
+B3|2026-04-25|session_start reconstructs state but skips scan when branch empty, widget not loaded on pi open|V3

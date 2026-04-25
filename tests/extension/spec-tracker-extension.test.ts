@@ -31,7 +31,7 @@ describe("spec-tracker extension event handlers", () => {
     };
   });
 
-  it("reads SPEC.md on edit tool_result and updates widget", async () => {
+  it("scans SPEC.md on session_start when no prior state exists", async () => {
     const fs = await import("node:fs");
     const path = await import("node:path");
     (fs.readFileSync as ReturnType<typeof vi.fn>).mockReturnValue(`## §G
@@ -42,22 +42,45 @@ T1|x|task1|-
 `);
 
     extension(pi);
-    expect(handlers.tool_result).toBeDefined();
+    expect(handlers.session_start).toBeDefined();
 
-    await handlers.tool_result(
-      {
-        type: "tool_result",
-        toolName: "edit",
-        toolCallId: "1",
-        input: { path: "SPEC.md", edits: [{ oldText: "a", newText: "b" }] },
-        content: [],
-        isError: false,
-      },
-      ctx
-    );
+    // No prior state in branch
+    ctx.sessionManager.getBranch.mockReturnValue([]);
+
+    await handlers.session_start({}, ctx);
 
     expect(path.resolve).toHaveBeenCalledWith("/project", "SPEC.md");
     expect(fs.readFileSync).toHaveBeenCalledWith("/project/SPEC.md", "utf-8");
+    expect(ctx.ui.setWidget).toHaveBeenCalledWith("spec_tracker", expect.any(Function));
+  });
+
+  it("calls setWidget on session_start", async () => {
+    // Prior state exists — widget should still show via reconstruct
+    ctx.sessionManager.getBranch.mockReturnValue([
+      {
+        type: "message",
+        message: {
+          role: "toolResult",
+          toolName: "spec_tracker",
+          details: {
+            action: "scan",
+            state: {
+              tasks: [{ id: "T1", name: "task1", status: "complete", cites: "" }],
+              invariantCount: 1,
+              bugCount: 0,
+              goal: "goal",
+            },
+          },
+        },
+      },
+    ]);
+
+    extension(pi);
+    expect(handlers.session_start).toBeDefined();
+
+    await handlers.session_start({}, ctx);
+
+
     expect(ctx.ui.setWidget).toHaveBeenCalledWith("spec_tracker", expect.any(Function));
   });
 });
