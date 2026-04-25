@@ -37,3 +37,4 @@ id|date|cause|fix
 B1|2026-04-25|edit tool_result skips SPEC.md scan, widget stale|V3
 B2|2026-04-25|widget renders ✓→○ not x/~/. per §V.5|V5
 B3|2026-04-25|session_start reconstructs state but skips scan when branch empty, widget not loaded on pi open|V3
+B4|2026-04-25|incorrect format.md reference|V6

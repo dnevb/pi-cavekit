@@ -17,7 +17,7 @@ Single-thread native plan→execute. You are main Claude. No swarm.
 ## LOAD
 
 1. Read `SPEC.md`. If missing → tell user to invoke the spec skill first. Stop.
-2. Read `FORMAT.md` once if not loaded.
+2. Read `../../FORMAT.md` once if not loaded.
 3. Parse invocation args:
    - `§T.n` → that task only
    - `--next` → lowest-numbered row with status `.` or `~`

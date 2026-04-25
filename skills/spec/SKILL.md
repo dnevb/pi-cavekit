@@ -13,7 +13,7 @@ description: |
 
 # spec — spec mutator
 
-Read `FORMAT.md` at repo root if not already loaded. Caveman skill applies to all writes here.
+Read `../../FORMAT.md` if not already loaded. Caveman skill applies to all writes here.
 
 ## DISPATCH
 
