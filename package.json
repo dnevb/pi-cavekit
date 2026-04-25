@@ -1,0 +1,43 @@
+{
+  "name": "pi-cavekit",
+  "version": "0.1.0",
+  "description": "Cavekit spec-driven development skills and spec tracker widget for pi",
+  "keywords": [
+    "pi-package"
+  ],
+  "license": "MIT",
+  "author": "dan",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dnevb/pi-cavekit.git"
+  },
+  "files": [
+    "extensions/",
+    "skills/",
+    "FORMAT.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "pi": {
+    "extensions": [
+      "extensions/spec-tracker.ts"
+    ],
+    "skills": [
+      "skills"
+    ]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.0.18"
+  }
+}
