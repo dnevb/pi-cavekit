@@ -9,6 +9,7 @@ pi package bundling cavekit spec-driven-dev skills + spec-tracker TUI widget for
 - extension TypeScript, no compile step (jiti)
 - widget reconstructs state from session branch entries
 - tests via vitest
+- publish to npm on git tag via github actions
 
 ## §I
 - package: `pi install git:github.com/dnevb/pi-cavekit`
@@ -33,6 +34,7 @@ T2|x|create spec-tracker extension core + widget|T2,V3,V4,V5
 T4|x|add vitest tests for skills + spec-tracker core|T4,V6
 T5|x|write package.json + README|T5,V1
 T6|x|add biome lint + format config|V1
+T7|x|add github actions publish workflow on tag|V1
 
 ## §B
 id|date|cause|fix
