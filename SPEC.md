@@ -13,8 +13,7 @@ pi package bundling cavekit spec-driven-dev skills + spec-tracker TUI widget for
 ## §I
 - package: `pi install git:github.com/dnevb/pi-cavekit`
 - skills: `/skill:spec`, `/skill:build`, `/skill:check`, `/skill:caveman`, `/skill:backprop`
-- extension tool: `spec_tracker({ action: "scan"|"status"|"clear" })`
-- widget: persistent TUI panel showing §T progress + §V/§B counts
+- widget: auto-updates on SPEC.md read/write/edit + session events
 
 ## §V
 V1: skills dir layout matches pi convention (`skills/<name>/SKILL.md`)
@@ -28,7 +27,7 @@ V6: tests validate all skills have valid frontmatter + all file refs resolve
 id|status|task|cites
 T1|x|copy cavekit skills into package|T1,V1,V2
 T2|x|create spec-tracker extension core + widget|T2,V3,V4,V5
-T3|x|create spec-tracker extension tool registration|T3,V3
+
 T4|x|add vitest tests for skills + spec-tracker core|T4,V6
 T5|x|write package.json + README|T5,V1
 T6|x|add biome lint + format config|V1

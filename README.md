@@ -8,14 +8,6 @@
 pi install git:github.com/dnevb/pi-cavekit
 ```
 
-Or add to `.pi/settings.json` (project-level) or `~/.pi/agent/settings.json` (global):
-
-```json
-{
-  "packages": ["git:github.com/dnevb/pi-cavekit"]
-}
-```
-
 ## Skills
 
 | Skill | Description | Invoke |
@@ -28,16 +20,17 @@ Or add to `.pi/settings.json` (project-level) or `~/.pi/agent/settings.json` (gl
 
 ## Spec Tracker Widget
 
-A persistent TUI widget that auto-scans `SPEC.md` and shows progress:
+A persistent TUI widget that auto-detects `SPEC.md` changes and shows progress:
 
 ```
 Spec: x~.. (1/4) V2 B1  impl auth middleware
 ```
 
-- **Auto-scan**: Updates when `SPEC.md` is read, written, or edited
-- **Manual scan**: `spec_tracker({ action: "scan" })`
-- **Status**: `spec_tracker({ action: "status" })`
-- **Clear**: `spec_tracker({ action: "clear" })`
+Updates automatically when `SPEC.md` is:
+- **Read** (via the read tool)
+- **Written** (via the write tool)
+- **Edited** (via the edit tool)
+- **Session start** (reconstructs from branch or scans filesystem)
 
 ## Format
 
@@ -53,7 +46,3 @@ npm run test:watch
 Tests cover:
 - Spec tracker parsing, formatting, state reconstruction
 - Skill validation (frontmatter, cross-references, file refs)
-
-## License
-
-MIT

@@ -20,49 +20,69 @@ export interface SpecTrackerDetails {
   error?: string;
 }
 
-export interface ActionResult {
-  text: string;
-  state: SpecState;
-  error?: string;
+export interface WidgetData {
+  icons: string[];
+  complete: number;
+  total: number;
+  currentName: string;
+  invariantCount: number;
+  bugCount: number;
+}
+
+export interface BranchEntry {
+  type: string;
+  message?: {
+    role: string;
+    toolName?: string;
+    details?: SpecTrackerDetails;
+  };
+}
+
+export function emptyState(): SpecState {
+  return { tasks: [], invariantCount: 0, bugCount: 0, goal: '' };
+}
+
+export function countComplete(tasks: Task[]): number {
+  return tasks.filter((t) => t.status === 'complete').length;
 }
 
 export function parseSpec(text: string): SpecState {
-  const tasks: Task[] = [];
-  let invariantCount = 0;
-  let bugCount = 0;
-  let goal = '';
-
   const lines = text.split('\n');
   let inTaskTable = false;
   let inBugTable = false;
   let headerSeen = false;
+  let invariantCount = 0;
+  let bugCount = 0;
+  let goal = '';
+  const tasks: Task[] = [];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
-    if (line.startsWith('## §G')) {
-      const next = lines[i + 1];
-      if (next) goal = next.trim();
+    if (line === '## §G') {
+      goal = lines[++i]?.trim() ?? '';
       continue;
     }
 
-    if (line.startsWith('## §V')) {
+    if (line === '## §V') {
       for (let j = i + 1; j < lines.length; j++) {
-        const l = lines[j].trim();
-        if (l.startsWith('## ')) break;
-        if (/^V\d+:/.test(l)) invariantCount++;
+        if (/^V\d+:/.test(lines[j].trim())) {
+          invariantCount++;
+        } else if (lines[j].trim().startsWith('## ')) {
+          break;
+        }
       }
       continue;
     }
 
-    if (line.startsWith('## §T')) {
+    if (line === '## §T') {
       inTaskTable = true;
       inBugTable = false;
       headerSeen = false;
       continue;
     }
 
-    if (line.startsWith('## §B')) {
+    if (line === '## §B') {
       inTaskTable = false;
       inBugTable = true;
       headerSeen = false;
@@ -84,26 +104,17 @@ export function parseSpec(text: string): SpecState {
       continue;
     }
 
-    if (inTaskTable && headerSeen && line.includes('|')) {
+    if (headerSeen && line.includes('|')) {
       const parts = line.split('|').map((p) => p.trim());
-      if (parts.length >= 3) {
+      if (inTaskTable && parts.length >= 3) {
         const statusChar = parts[1];
-        let status: TaskStatus = 'pending';
-        if (statusChar === 'x') status = 'complete';
-        else if (statusChar === '~') status = 'in_progress';
         tasks.push({
           id: parts[0],
           name: parts[2],
-          status,
-          cites: parts[3] || '',
+          status: statusChar === 'x' ? 'complete' : statusChar === '~' ? 'in_progress' : 'pending',
+          cites: parts[3] ?? '',
         });
-      }
-      continue;
-    }
-
-    if (inBugTable && headerSeen && line.includes('|')) {
-      const parts = line.split('|').map((p) => p.trim());
-      if (parts.length >= 2 && parts[0].startsWith('B')) {
+      } else if (inBugTable && parts.length >= 2 && parts[0].startsWith('B')) {
         bugCount++;
       }
     }
@@ -112,129 +123,44 @@ export function parseSpec(text: string): SpecState {
   return { tasks, invariantCount, bugCount, goal };
 }
 
-export function handleScan(specText: string | undefined): ActionResult {
-  if (!specText || specText.trim().length === 0) {
-    return {
-      text: 'Error: no SPEC.md content provided',
-      state: emptyState(),
-      error: 'no spec content',
-    };
+export interface ScanResult {
+  state: SpecState;
+  error?: string;
+}
+
+export function handleScan(specText: string | undefined): ScanResult {
+  if (!specText?.trim()) {
+    return { state: emptyState(), error: 'no spec content' };
   }
-  const state = parseSpec(specText);
-  return {
-    text: formatStatus(state),
-    state,
-  };
-}
-
-export function handleStatus(state: SpecState): ActionResult {
-  return {
-    text: formatStatus(state),
-    state: { ...state },
-  };
-}
-
-export function handleClear(): ActionResult {
-  return {
-    text: 'Spec tracker cleared.',
-    state: emptyState(),
-  };
-}
-
-function emptyState(): SpecState {
-  return { tasks: [], invariantCount: 0, bugCount: 0, goal: '' };
-}
-
-export function formatStatus(state: SpecState): string {
-  if (state.tasks.length === 0 && state.invariantCount === 0) {
-    return 'No SPEC.md parsed.';
-  }
-
-  const complete = state.tasks.filter((t) => t.status === 'complete').length;
-  const inProgress = state.tasks.filter((t) => t.status === 'in_progress').length;
-  const pending = state.tasks.filter((t) => t.status === 'pending').length;
-
-  const lines: string[] = [];
-  if (state.goal) {
-    lines.push(`Goal: ${state.goal}`);
-    lines.push('');
-  }
-  lines.push(
-    `Tasks: ${complete}/${state.tasks.length} complete (${inProgress} in progress, ${pending} pending)`,
-  );
-  lines.push(`Invariants: ${state.invariantCount} | Bugs: ${state.bugCount}`);
-  lines.push('');
-  for (const t of state.tasks) {
-    const icon = t.status === 'complete' ? 'x' : t.status === 'in_progress' ? '~' : '.';
-    lines.push(`  ${icon} [${t.id}] ${t.name}`);
-  }
-  return lines.join('\n');
-}
-
-export interface WidgetData {
-  icons: string[];
-  complete: number;
-  total: number;
-  currentName: string;
-  invariantCount: number;
-  bugCount: number;
+  return { state: parseSpec(specText) };
 }
 
 export function formatWidgetData(state: SpecState): WidgetData {
-  if (state.tasks.length === 0) {
-    return {
-      icons: [],
-      complete: 0,
-      total: 0,
-      currentName: '',
-      invariantCount: state.invariantCount,
-      bugCount: state.bugCount,
-    };
-  }
-
-  const complete = state.tasks.filter((t) => t.status === 'complete').length;
-  const icons = state.tasks.map((t) => {
-    switch (t.status) {
-      case 'complete':
-        return 'x';
-      case 'in_progress':
-        return '~';
-      default:
-        return '.';
-    }
-  });
-
+  const complete = countComplete(state.tasks);
+  const icons = state.tasks.map((t) =>
+    t.status === 'complete' ? 'x' : t.status === 'in_progress' ? '~' : '.',
+  );
   const current =
     state.tasks.find((t) => t.status === 'in_progress') ??
     state.tasks.find((t) => t.status === 'pending');
-  const currentName = current ? current.name : '';
 
   return {
     icons,
     complete,
     total: state.tasks.length,
-    currentName,
+    currentName: current?.name ?? '',
     invariantCount: state.invariantCount,
     bugCount: state.bugCount,
   };
 }
 
-export interface BranchEntry {
-  type: string;
-  message?: {
-    role: string;
-    toolName?: string;
-    details?: SpecTrackerDetails;
-  };
-}
-
 export function reconstructFromBranch(entries: BranchEntry[]): SpecState {
-  let state: SpecState = emptyState();
+  let state = emptyState();
   for (const entry of entries) {
     if (entry.type !== 'message') continue;
     const msg = entry.message;
-    if (!msg || msg.role !== 'toolResult' || msg.toolName !== 'spec_tracker') continue;
-    const details = msg.details as SpecTrackerDetails | undefined;
+    if (msg?.role !== 'toolResult' || msg?.toolName !== 'spec_tracker') continue;
+    const details = msg.details;
     if (details && !details.error) {
       state = details.state;
     }

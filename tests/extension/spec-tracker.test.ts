@@ -1,14 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   type BranchEntry,
-  formatStatus,
   formatWidgetData,
-  handleClear,
   handleScan,
-  handleStatus,
   parseSpec,
   reconstructFromBranch,
-  type SpecState,
 } from '../../extensions/spec-tracker-core.js';
 
 const SAMPLE_SPEC = `# my-project
@@ -93,24 +89,6 @@ describe('parseSpec', () => {
   });
 });
 
-describe('formatStatus', () => {
-  it('formats full spec status', () => {
-    const s = parseSpec(SAMPLE_SPEC);
-    const out = formatStatus(s);
-    expect(out).toContain('Goal: build auth service');
-    expect(out).toContain('Tasks: 1/3 complete (1 in progress, 1 pending)');
-    expect(out).toContain('Invariants: 2 | Bugs: 1');
-    expect(out).toContain('x [T1] scaffold repo');
-    expect(out).toContain('~ [T2] impl auth mw');
-    expect(out).toContain('. [T3] add tests');
-  });
-
-  it('handles empty state', () => {
-    const out = formatStatus({ tasks: [], invariantCount: 0, bugCount: 0, goal: '' });
-    expect(out).toBe('No SPEC.md parsed.');
-  });
-});
-
 describe('formatWidgetData', () => {
   it('formats widget data for full spec', () => {
     const s = parseSpec(SAMPLE_SPEC);
@@ -140,7 +118,8 @@ describe('handleScan', () => {
     const r = handleScan(SAMPLE_SPEC);
     expect(r.error).toBeUndefined();
     expect(r.state.tasks).toHaveLength(3);
-    expect(r.text).toContain('Tasks: 1/3 complete');
+    expect(r.state.invariantCount).toBe(2);
+    expect(r.state.bugCount).toBe(1);
   });
 
   it('errors on empty content', () => {
@@ -152,31 +131,6 @@ describe('handleScan', () => {
   it('errors on undefined', () => {
     const r = handleScan(undefined);
     expect(r.error).toBe('no spec content');
-  });
-});
-
-describe('handleStatus', () => {
-  it('returns current state', () => {
-    const state: SpecState = {
-      tasks: [{ id: 'T1', name: 'foo', status: 'complete', cites: '' }],
-      invariantCount: 1,
-      bugCount: 0,
-      goal: 'g',
-    };
-    const r = handleStatus(state);
-    expect(r.error).toBeUndefined();
-    expect(r.state.tasks).toHaveLength(1);
-    expect(r.text).toContain('x [T1] foo');
-  });
-});
-
-describe('handleClear', () => {
-  it('returns empty state', () => {
-    const r = handleClear();
-    expect(r.error).toBeUndefined();
-    expect(r.state.tasks).toHaveLength(0);
-    expect(r.state.invariantCount).toBe(0);
-    expect(r.text).toBe('Spec tracker cleared.');
   });
 });
 
