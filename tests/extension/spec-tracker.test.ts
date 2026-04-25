@@ -55,6 +55,27 @@ no tasks
 V1: foo
 `;
 
+const TITLED_SPEC = `## §G GOAL
+build auth service
+
+## §C CONSTRAINTS
+- node.js 20
+
+## §I INTERFACE
+api: POST /auth → 200 {token}
+
+## §V INVARIANTS
+V1: ∀ req → auth check before handler
+
+## §T TASKS
+id|status|task|cites
+T1|x|scaffold repo|-
+
+## §B BUGS
+id|date|cause|fix
+B1|2026-04-20|token typo|V1
+`;
+
 describe('parseSpec', () => {
   it('parses full spec', () => {
     const s = parseSpec(SAMPLE_SPEC);
@@ -86,6 +107,15 @@ describe('parseSpec', () => {
     expect(s.invariantCount).toBe(1);
     expect(s.bugCount).toBe(0);
     expect(s.tasks).toHaveLength(0);
+  });
+
+  it('parses titled section headers', () => {
+    const s = parseSpec(TITLED_SPEC);
+    expect(s.goal).toBe('build auth service');
+    expect(s.invariantCount).toBe(1);
+    expect(s.bugCount).toBe(1);
+    expect(s.tasks).toHaveLength(1);
+    expect(s.tasks[0]).toEqual({ id: 'T1', name: 'scaffold repo', status: 'complete', cites: '-' });
   });
 });
 

@@ -59,12 +59,12 @@ export function parseSpec(text: string): SpecState {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
-    if (line === '## §G') {
+    if (line.startsWith('## §G')) {
       goal = lines[++i]?.trim() ?? '';
       continue;
     }
 
-    if (line === '## §V') {
+    if (line.startsWith('## §V')) {
       for (let j = i + 1; j < lines.length; j++) {
         if (/^V\d+:/.test(lines[j].trim())) {
           invariantCount++;
@@ -75,14 +75,14 @@ export function parseSpec(text: string): SpecState {
       continue;
     }
 
-    if (line === '## §T') {
+    if (line.startsWith('## §T')) {
       inTaskTable = true;
       inBugTable = false;
       headerSeen = false;
       continue;
     }
 
-    if (line === '## §B') {
+    if (line.startsWith('## §B')) {
       inTaskTable = false;
       inBugTable = true;
       headerSeen = false;
