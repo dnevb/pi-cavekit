@@ -1,16 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock("node:fs", () => ({
-  readFileSync: vi.fn(() => ""),
+vi.mock('node:fs', () => ({
+  readFileSync: vi.fn(() => ''),
 }));
 
-vi.mock("node:path", () => ({
-  resolve: vi.fn((...args: string[]) => args.join("/")),
+vi.mock('node:path', () => ({
+  resolve: vi.fn((...args: string[]) => args.join('/')),
 }));
 
-import extension from "../../extensions/spec-tracker.js";
+import extension from '../../extensions/spec-tracker.js';
 
-describe("spec-tracker extension event handlers", () => {
+describe('spec-tracker extension event handlers', () => {
   let pi: any;
   let handlers: Record<string, Function>;
   let ctx: any;
@@ -26,14 +26,14 @@ describe("spec-tracker extension event handlers", () => {
     ctx = {
       hasUI: true,
       ui: { setWidget: vi.fn() },
-      cwd: "/project",
+      cwd: '/project',
       sessionManager: { getBranch: vi.fn(() => []) },
     };
   });
 
-  it("scans SPEC.md on session_start when no prior state exists", async () => {
-    const fs = await import("node:fs");
-    const path = await import("node:path");
+  it('scans SPEC.md on session_start when no prior state exists', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
     (fs.readFileSync as ReturnType<typeof vi.fn>).mockReturnValue(`## §G
 goal
 ## §T
@@ -44,31 +44,29 @@ T1|x|task1|-
     extension(pi);
     expect(handlers.session_start).toBeDefined();
 
-    // No prior state in branch
     ctx.sessionManager.getBranch.mockReturnValue([]);
 
     await handlers.session_start({}, ctx);
 
-    expect(path.resolve).toHaveBeenCalledWith("/project", "SPEC.md");
-    expect(fs.readFileSync).toHaveBeenCalledWith("/project/SPEC.md", "utf-8");
-    expect(ctx.ui.setWidget).toHaveBeenCalledWith("spec_tracker", expect.any(Function));
+    expect(path.resolve).toHaveBeenCalledWith('/project', 'SPEC.md');
+    expect(fs.readFileSync).toHaveBeenCalledWith('/project/SPEC.md', 'utf-8');
+    expect(ctx.ui.setWidget).toHaveBeenCalledWith('spec_tracker', expect.any(Function));
   });
 
-  it("calls setWidget on session_start", async () => {
-    // Prior state exists — widget should still show via reconstruct
+  it('calls setWidget on session_start', async () => {
     ctx.sessionManager.getBranch.mockReturnValue([
       {
-        type: "message",
+        type: 'message',
         message: {
-          role: "toolResult",
-          toolName: "spec_tracker",
+          role: 'toolResult',
+          toolName: 'spec_tracker',
           details: {
-            action: "scan",
+            action: 'scan',
             state: {
-              tasks: [{ id: "T1", name: "task1", status: "complete", cites: "" }],
+              tasks: [{ id: 'T1', name: 'task1', status: 'complete', cites: '' }],
               invariantCount: 1,
               bugCount: 0,
-              goal: "goal",
+              goal: 'goal',
             },
           },
         },
@@ -80,7 +78,6 @@ T1|x|task1|-
 
     await handlers.session_start({}, ctx);
 
-
-    expect(ctx.ui.setWidget).toHaveBeenCalledWith("spec_tracker", expect.any(Function));
+    expect(ctx.ui.setWidget).toHaveBeenCalledWith('spec_tracker', expect.any(Function));
   });
 });

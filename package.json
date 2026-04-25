@@ -20,7 +20,9 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
   },
   "pi": {
     "extensions": [
@@ -37,6 +39,7 @@
     "typebox": "*"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
     "typescript": "^6.0.3",
     "vitest": "^4.0.18"
   }
